@@ -25,9 +25,13 @@ Git是一种开源的分布式版本管理系统。
 
 #### 版本回退与回退的撤销
 
-- `git log` ，查看提交的历史记录，以便确定回退到哪一个版本，精简输出可以使用`git log --pretty=online`；<span id="versionback"></span>
+- `git log` ，查看提交的历史记录，以便确定回退到哪一个版本，精简输出可以使用`git log --pretty=oneline`；<span id="versionback"></span>
+
 - `git reflog` ，查看命令的历史记录，可以用于确定版本回退之前的最新版本号`commit_id` ；
+
 - `git reset --hard <commit_id>` ，`commit_id` 是版本号，是SHA1计算得出的十六进制数字，每提交一次就会新生成一个`commit_id` ，版本号没有必要每次都输入完整，保证前几位不同就可以。此外，`HEAD` 表示当前版本号，`HEAD^` 表示上一个版本号，以此类推，`HEAD~100` 表示上100个版本号。
+
+  **注意** ：对于只有一个版本的版本库是无法再回退到上一个状态（即最初初始化的状态）
 
 #### 工作区与暂存区
 
