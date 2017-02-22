@@ -77,7 +77,26 @@ Git跟踪并管理的是**文件的修改部分** ,而非整个文件。
 
 - **注** ：`git checkout` 的原理是，利用版本库中的最新版本替换工作区的版本。
 
-  ​
 
+### 远程仓库
 
+可以自己搭建Git服务器作为远程仓库，也可以使用Github的免费仓库（但是是公开的所有人可见的）。
 
+一台电脑上也可以建立多个版本库，只要不在同一目录中即可。
+
+Git支持SSH协议。
+
+#### 添加远程库与推送Push
+
+在完成Github注册和SSH Key添加之后，就可以在Github上创建一个新的Git仓库，然后根据相应的提示，将本地仓库的文件推送（Push）到远程仓库中。
+
+- `git remote add origin <仓库地址>` ，在本地仓库目录下执行，将本地仓库与远程仓库进行关联，同时为远程仓库定义了新的名字`origin` ，当然也可以使用别的名字；
+- `git push -u origin master` ，将本地仓库的内容推送到远成仓库，实际上是将当前分支`master` 的内容推送到远程仓库的`master` 分支，由于刚开始远程仓库是空的，所以第一次推送的时候，需要参数`-u` ，这样在推送的同时，还会建立起本地分支`master` 和远程仓库中`master` 分支的联系，以后推送和拉取内容就可以简化命令，即`git push origin master` 和
+
+#### 从远程库克隆Clone
+
+- `git clone https://github.com/zouguijin/docSync.git` 
+
+- `git clone git@github.com:zouguijin/docSync.git` 
+
+  Git支持多种协议，默认的git（所使用的是ssh协议），此外还可以使用https协议（但是https协议有时候比较慢，而且每次推送都需要输入口令，使用ssh就不需要输入口令）。
