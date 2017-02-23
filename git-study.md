@@ -134,7 +134,7 @@ Git支持SSH协议。
   - `git merge <name>` ，合并分支，将指定命名分支合并到当前分支上；（默认使用`Fast Forward` 模式，该模式下删除分支后，分支信息也随之删除，即看不到历史合并信息；若希望能看到历史合并信息，就需要禁用FF模式，并最好添加注释信息，即`git merge --no-ff -m "注释信息" <name>`）
   - `git branch -d <name>` ，删除指定命名分支。
 
-- 合并冲突
+- 合并冲突<span id="conflict-solve"></span>
 
   如果两个需要合并的分支各自都有新的提交，而且两者的提交在同一位置有不同的表述，在合并的时候就会出现冲突，即不能简单地删除、添加或者替换。
 
@@ -146,3 +146,131 @@ Git支持SSH协议。
 
   - 保证主分支`master` 是稳定的，仅仅用于发布公开的、可以使用的新版本；
   - 如果团队合作的话，需要新建一个团队开发提交的分支，例如`dev` 分支，平时的提交与合并都在该分支上完成，一个完整的版本完成之后再将`dev` 分支合并到主分支上。
+
+#### Bug分支
+
+当遇到Bug的时候，可以切换到需要修复Bug的分支上，在该分支上创建临时的Bug分支，在临时分支上修复Bug，然后合并原分支上，最后删除临时分支即可。
+
+此时，如果手头上的工作没有做完（工作区有正在修改的内容，如果将Bug修复完成之后就添加、提交，那么之前正在处理但未处理完成的工作就会和修复的Bug一起添加并提交上去，这是我们不想看见的），那么这时候就需要将未完成的工作**先拿出工作区并暂存**起来：
+
+> `git stash` 
+
+此时，利用`git status` 查看工作区，会看见工作区是干净的。
+
+完成Bug修复之后，可以再将之前的工作取出来放进工作区继续完成：
+
+- `git stash list` ，若有多个工作，可以先查看列表，再决定需要恢复哪个工作；
+- `git stash apply` ，恢复工作之后，暂存的内容并不会自动删除，需要使用`git stash drop` 将相应的内容删除；
+- `git stash pop` ，推荐使用，恢复工作的同时，可以将暂存的内容也删除；
+- 若要指定恢复或者删除哪一条`stash` ，可以添加后续命令`stash@{x}` ，`x` 可以从`stash` 列表中选取。
+
+#### Feature分支
+
+为项目开发一个新的功能时，最好在项目分支上新建一个分支，功能完成之后再将新功能的代码合并到项目分支中。
+
+如果在合并之前，需要放弃该功能分支，则需要通过强行删除的操作完成：
+
+> `git branch -D <name>`
+
+#### 推送与抓取
+
+- `git remote -v` ，查看远程库的信息，会给出本地可以抓取和推送的远程库的地址以及远程库的命名（默认是`origin`）；
+
+- `git push origin <name> ` ，推送分支，即将指定分支上的所有本地内容推送到远程仓库中的**相对应**的分支上，可以推送本地`master` 分支内容，也可以推送其他分支的内容；
+
+- `git clone <git/https>` ，其他用户从远程库克隆的时候，默认情况下只能看到`master` 分支（当然其他分支也随之克隆下来了，只是不稍微调整是看不到的），前面说了，一般不会直接向`master` 分支推送修改，所以需要在本地创建远程仓库`origin` 的分支`branch` （这里的`branch` 需要与远程仓库的`branch` 同名）：
+
+  > `git checkout -b branch origin/branch` 
+
+  只有这样，才能建立本地与远成仓库的联系，之后的抓取`git pull` 和推送`git push origin branch ` 才可以进行。
+
+- `git pull` ，抓取分支，首先需要建立本地分支与远程仓库相应分支之间的链接：
+
+  > `git branch --set-upstream branch origin/branch` 
+
+  在之前建立本地分支与远程库分支的基础上，可以将最新的提交从远程库相应的分支上抓取下来：
+
+  > `git pull` 
+
+  如果`git pull` 的时候出现冲突，则需要[解决冲突](#conflict-solve) 。
+
+- 本地分支，若不推送到远程，只有本地可见。
+
+### 标签（Tag）
+
+版本发布的时候，为了今后方便查找，一般会使用标签的方式，采用有意义的文字标记当前版本，即可以将标签当作版本库的一个快照，本质上标签就是一个指向某一次`commit` 的指针，类似于分支指针（但是分支指针可以移动，标签指针不可以移动）。
+
+- `git tag` ，查看所有标签；
+- `git tag <name>` ，为当前分支生成一个标签，标签默认标记在最新的提交上；
+- `git tag <name> <commit_id>` ，若想为历史的某一次提交生成标签，则找到该提交的`commit_id` 即可；
+- `git tag -a <tagname> -m "注释信息" <commit_id>` ，创建标签并生成注释；
+- `git show <tagname>` ，查看相应的标签信息；
+
+**注** ：标签是按照字母顺序排序的，而不是按照时间排序。
+
+- `git tag -d <tagname>` ，删除本地标签；
+
+- `git push origin <tagname>` ，将标签推送到远程仓库中；
+
+- `git push origin --tags` ，一次性地将本地标签全部推送到远程库中；
+
+- 若想要删除的标签已经被推送到了远程库中，那么需要两步才能删除标签：
+
+  >`git tag -d <tagname>` #首先，本地删除
+  >
+  >`git push origin :refs/tags/<tagname>` #然后，远程删除库中的标签
+
+### Github
+
+如果要参与开源项目，首先将开源项目`Fork` 到自己的仓库中，然后**从自己的仓库中`Clone` **，只有这样才能在本地修改之后，再次推送到Github上，若希望开源项目的官方接受自己的修改，则需要在Github上发起`Pull Request` 。
+
+### .gitignore
+
+.gitignore文件中的文件名将会在提交的时候被忽略，.gitignore文件需要放在版本库中。
+
+.gitignore文件不需要从头开始编写，可以参照[官方文档](https://github.com/github/gitignore '.gitignore-doc')并进行相应的组合即可。
+
+- `git add -f <file>` ，有时候.gitignore文件中禁止提交的文件类型中，有你希望提交的一份文件，则可以通过上述命令强行添加并提交；
+- `git check-ignore -v <file>` ，当发现一个文件无法添加和提交时，需要检查.gitignore文件中哪一条规则写错了，可以使用上述命令进行检查。
+
+### Git配置
+
+- 当前仓库的配置文档存放在`.git/config` 文件中；
+- 当前用户的配置文档存放在用户主目录下的隐藏文件`.gitignore` 中；
+- `git config --global alias. <short-command> <origin-command>` ，配置别名，简化使用。
+
+### Git服务器搭建
+
+服务器系统采用Linux，推荐Ubuntu或者Debian，以下操作需要sudo权限。
+
+1. 安装Git:
+
+   `sudo apt-get install git` 
+
+2. 创建Git用户，用于运行Git服务：
+
+   `sudo adduser git` 
+
+3.  添加公钥，保证用户的登录：
+
+   收集所有需要登录服务器的用户的公钥，即`id_rsa.pub` 文件的内容，将公钥添加进服务器的`/home/git/.ssh/authorized_keys` 文件中，一行一个。
+
+4. 初始化Git仓库：
+
+   选定一个目录作为Git仓库，例如`/git/git-server.git` ，在目录`/git` 下执行命令：
+
+   `sudo git init --bare git-server.git` 
+
+   创建的是裸仓库，即没有工作区，服务器的目的是为了共享，而不允许用户登录到服务器上去修改，然后将Git仓库的所有者更改为之前添加的用户git：
+
+   `sudo chown -R git:git git-server.git` 
+
+5. 禁用shell登录：
+
+   即禁止之前创建的用户git登录shell，可以通过编辑`/etc/passwd` 文件完成，将以下一行
+
+   `git:x:1001:1001:,,,:/home/git:/bin/bash` 
+
+   改为
+
+   `git:x:1001:1001:,,,:/home/git:/usr/bin/git-shell` 
