@@ -274,3 +274,11 @@ Git支持SSH协议。
    改为
 
    `git:x:1001:1001:,,,:/home/git:/usr/bin/git-shell` 
+
+   意思就是，用户`git` 每次一登录shell就会自动退出，即无法登录shell进行其他操作，这么做的目的是，让`git` 用户可以正常通过ssh使用git，但禁止其登录shell。
+
+6. 远程Git仓库已经建立好了，其他客户端用户可以使用`git clone` 将服务器上的内容克隆到本地进行修改：
+
+   `git clone git@server:/git/git-server.git` 
+
+   修改完成之后，就是推送与共享了。
