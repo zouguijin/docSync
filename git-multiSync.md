@@ -1,6 +1,6 @@
 title: Github Pages+hexo博客的创建与多机更新博客的实现
 
-date: 2017/2/25 10:00:00
+date: 2017/2/26 19:00:00
 
 catergories:
 
@@ -10,10 +10,13 @@ tags:
 
 - BlogTools
 - Github
+- hexo
 
 ---
 
 ### 0 前言
+
+---
 
 本篇博文主要介绍在Windows 10系统上创建Github Pages+hexo博客的过程，同时，考虑到可能会在不同地点使用不同机器进行博客的更新操作，所以本篇博文还会介绍如何实现多台机器更新博客内容的方法，主要涉及的名词有：
 
@@ -28,6 +31,8 @@ tags:
   [Markdown](http://sspai.com/25137/) 是一种用于写作的轻量级标记语言，虽然不像Word那样拥有大量的排版和字体设置，可以排版出一篇或精美或专业的文章，但是Markdown中简单的标记字符易于使用和记忆，甚至可以完成脱离鼠标，单单使用键盘就可以完成一篇文章的书写以及简洁精致的排版，这让使用者可以更加专心的码字，而不是过多地在意繁琐的排版工作。
 
   Markdown有很多相关的编辑器，这里强烈推荐[Typora](https://typora.io/) 。
+
+  *有关Markdown编辑器的介绍和分析，请见另一篇博文《Typora——Markdown编辑界的极简主义》* 
 
 - hexo
 
@@ -45,11 +50,11 @@ tags:
 
 #### 1.1 注册Github并创建一个新仓库（Repository）
 
-登录Github网站并注册账号成功之后，可以按照[Create a new repository on GitHub](https://help.github.com/articles/create-a-repo/#create-a-new-repository-on-github) 的官方教程，一步一步地创建一个新的仓库，需要注意的只有一点：即因为我们这里是为了创建Github Pages博客的仓库，所以Repository name一定要是`<your_githubname>.github.io` 的形式。
+登录Github网站并注册账号成功之后，可以按照<span id="create-repo"></span>[Create a new repository on GitHub](https://help.github.com/articles/create-a-repo/#create-a-new-repository-on-github) 的官方教程，一步一步地创建一个新的仓库，需要注意的只有一点：即因为我们这里是为了创建Github Pages博客的仓库，所以Repository name一定要是`<your_githubname>.github.io` 的形式。
 
 #### 1.2 建立Github与本地的连接（Authenticating）
 
-为了能够将本地的博客内容提交到远端的Github仓库中，需要建立本地与Github仓库的连接，即要让本地通过Github的身份验证（Authenticating）。考虑到Git默认使用SSH协议，所以我们使用SSH协议建立本地与Github之间的连接，参照[Connecting to GitHub with SSH](https://help.github.com/articles/connecting-to-github-with-ssh/) 。*（以下命令需要安装Git，并在Git Bash中完成输入）* 
+为了能够将本地的博客内容提交到远端的Github仓库中，需要建立本地与Github仓库的连接<span id="create-githublink"></span>，即要让本地通过Github的身份验证（Authenticating）。考虑到Git默认使用SSH协议，所以我们使用SSH协议建立本地与Github之间的连接，参照[Connecting to GitHub with SSH](https://help.github.com/articles/connecting-to-github-with-ssh/) 。*（以下命令需要安装Git，并在Git Bash中完成输入）* 
 
 当然也可以使用HTTPS建立连接，具体可以参照[Authenticating with GitHub from Git](https://help.github.com/articles/set-up-git/#next-steps-authenticating-with-github-from-git) 并做进一步的阅读。
 
@@ -128,6 +133,8 @@ tags:
 
 ### 2 Hexo本地建站
 
+---
+
 #### 2.1 hexo安装
 
 hexo是基于node.js且在博客部署的时候需要Git命令操作的，所以在安装hexo之前，需要先安装[node.js](https://nodejs.org/en/) 和[Git](https://git-scm.com/download/win) 。
@@ -142,28 +149,44 @@ npm install -g hexo-cli
 
 - **1. 确定博客本地站点的位置：** 
 
-  选择一个位置，作为今后博客本地站点文件的存放位置， ~~在该位置建立名为`<your_githubname>.github.io` 的文件夹，`<your_githubname>.github.io` 也就是之前在Github上创建的仓库名~~ 
+  ~~选择一个位置，作为今后博客本地站点文件的存放位置， 在该位置建立名为`<your_githubname>.github.io` 的文件夹，`<your_githubname>.github.io` 也就是之前在Github上创建的仓库名~~ 
 
-  由于我想要建立的是一个可以实现多机更新的博客，所以我不应该将hexo站点建立在某一台机器上，因为最后hexo部署到Github上的时候，只是提交了`hexo generate` 生成的静态网页文件，如果建站在本地，其他机器就不会拥有之前一台机器已经配置好的主题和`_config.yml` 配置文件。所以，我需要将hexo站点放在Github仓库`master` 分支外的另一个分支`hexo-files` 上（当然这个分支也可以命名成别的名字）。
+  由于我想要建立的是一个可以实现多机更新的博客，所以应该将hexo站点建立在**本地的Github仓库**中，这样在一台机器上配置好的主题和配置文件就可以随时上传到**Github远程仓库**中保存。如果希望在其他机器上建立hexo站点，在安装Git的基础上，可以先将之前保存在Github远程仓库中的hexo站点文件**克隆**到本地，形成Github本地仓库，然后在本地仓库中安装hexo即可使用，不需要重复配置。
 
-  ​
+  同时，由于我们的博客静态网页是发布在远程仓库的`master` 分支，即主分支上，所以我们需要在`master` 分支的基础上，**新建一个分支**，命名随意，我这里记为`hexo-files` ，用于保存推送上来的hexo站点文件，同时在Github中将`hexo-files` 分支设置为当前仓库的**默认分支**，这样可以方便将本地仓库的文件推送到远端仓库中。
+
+  综上，在上文[创建Github远端新仓库](#create-repo) 以及新建并设置默认分支为`hexo-files` 的基础上，将这个新仓库**克隆**到本地，从而建立本地的Github仓库：
+
+  ```
+  # 切换到在你希望建立Github本地仓库的路径下
+  git clone git@github.com:<your_githubname>/<your_githubname>.github.io.git
+  ```
+
+  上述命令会自动创建一个名为`<your_githubname>.github.io` 的文件夹，并将远程仓库中的文件都放到这个文件夹中。同时，可以发现文件夹中有一个名为`.git` 的文件夹，这个文件夹保存了有关Github本地仓库的信息以及本地仓库与远程仓库的连接信息，也就是能将`<your_githubname>.github.io` 文件夹中内容推送到远程仓库中的关键。
+
+  **注** ：由于后续建站的时候，`hexo init` 命令初始化时，会将`.git` 文件夹覆盖，所以在这一步结束的时候，需要先将`.git` 文件夹保存起来，等待下一步`hexo init` 之后再复制进来。
 
 - **2. 建站：**
 
-  进入站点文件夹内，依次执行以下两条命令，完成hexo站点的建立：
+  进入站点文件夹`<your_githubname>.github.io` 内，依次执行以下两条命令，完成hexo站点的建立：
 
   ```
   hexo init
   npm install
   ```
 
+  **注** ：记得将`.git` 文件夹复制到`<your_githubname>.github.io` 中。
+
+  此时，在Git Bash中进入`<your_githubname>.github.io` 目录下，可以看到当前所处Github分支是`hexo-files` ，如果不是，请返回上一步，设置好默认分支，再克隆远程仓库到本地。
+
   完成后，站点文件夹内的目录结构大致如下：
 
   ```
   .
+  ├── .git
   ├── _config.yml
   ├── package.json
-  |—— node_modules
+  ├── node_modules
   ├── scaffolds
   ├── source
   |   └── _posts
@@ -200,7 +223,7 @@ npm install -g hexo-cli
 
 将一篇写好的Markdown文件放入`_post` 文件夹中（如果你还不知道怎么写，可以先参照和使用文件夹中已有的一个示例），关于如何写一篇Markdown文章，推荐使用[Typora](https://typora.io/) Markdown编辑器，关于Markdown语法，推荐[Typora For Markdown 语法](http://www.jianshu.com/p/092de536d948) ，当然也可以自行搜索。
 
-将Markdown文件生成静态网页文件：
+将Markdown文件生成静态网页文件，执行以下命令之后，会产生一个`public` 文件夹，其中包含的就是所生成的静态网页文件和样式：
 
 ``` 
 hexo generate
@@ -251,7 +274,7 @@ hexo generate
 hexo server
 ```
 
-#### 2.6 总结
+#### 2.6 小结
 
 以上就完成了hexo的本地建站工作，如果只想在本地玩玩，到这里就完成了，日常的工作就是写写Markdown文章，然后在站点目录下依次执行以下命令即可：
 
@@ -266,9 +289,12 @@ PS. 顺便总结一下不问原因的、从零开始的快速建站方法：
 ```
 # install node.js and git
 npm install -g hexo-cli
-# choose a path and create dir named <your_githubname>.github.io
+# choose a path and clone <your_githubname>.github.io.git to local dir
+git clone git@github.com:<your_githubname>/<your_githubname>.github.io.git
 cd <your_githubname>.github.io
+# 先将 .git 文件夹复制
 hexo init
+# 再将 .git 文件夹粘贴进来
 npm install
 # write a markdown file and put it into /source/_post/
 hexo generate
@@ -276,6 +302,8 @@ hexo server
 ```
 
 ### 3 hexo部署到Github
+
+---
 
 - 安装插件：
 
@@ -290,15 +318,21 @@ deploy:
   type: git
   repo:  https://github.com/<your_githubname>/<your_name>.github.io.git
   branch: master
+# branch: master 意思是，部署的时候选择master分支发布
 ```
 
 ​	**注 ：配置文件中冒号后面一定要空一格** 
 
-- 部署到Github：
+- 将hexo站点文件推送到远程仓库中，并将生成的静态网页部署到Github Pages：
 
 ```
+git add .
+git commit -m "注释"
+git push origin hexo-files # 意思是，将本地仓库hexo-files分支的内容推送到名为origin的远程仓库的默认分支中
+# 生成静态网页并部署到Github上
+hexo generate
 hexo deploy
-# 或者简化  hexo d
+# 或者简化  hexo g -d
 ```
 
 ​	有时候会跳出一个窗口，输入Github账号和密码即可。
@@ -306,3 +340,48 @@ hexo deploy
 - 登录`https://<your_githubname>.github.io` ，查看部署完成的博客内容。
 
 **注** ：我还没有出现过部署不成功的情况，如果有，请查看[hexo部署后没动静，咋办](http://lowrank.science/Hexo-Github/) 。
+
+### 4 hexo博客更新以及多机更新流程
+
+---
+
+- **Status1** ：如果上一次更新时使用的就是当前的机器，那么只需要将新完成的Markdown文件放入`_post` 文件夹内，按照情况执行以下命令即可：
+
+```
+# 本地预览时
+hexo generate
+hexo server
+# 确定完成，需要推送&发布
+hexo clean # 清理一下减少推送的数据量
+git add .
+git commit -m "注释"
+git push origin hexo-files
+hexo g -d
+```
+
+- **Status2** ：如果上一次更新时使用的不是当前机器，那么首先需要确定当前机器已经[建立了Github与本地的连接](#create-githublink) 并且已经安装了node.js和Git，之后根据情况执行以下命令：
+
+```
+# 创建本地仓库
+git clone git@github.com:<your_githubname>/<your_githubname>.github.io.git
+cd <your_githubname>.github.io
+# 若当前机器是第一次用于编写发布博客，则需要安装hexo
+npm install -g hexo-cli
+# 否则，从这里开始
+npm install hexo 
+npm install
+npm install hexo-deployer-git --save
+# npm install hexo-renderer-less --save
+# npm install hexo-renderer-jade --save
+# 之后，就可以按照上述的 Status1 推送和发布博客了
+```
+
+### 5 总结
+
+本文介绍了Hexo+Github Pages博客的建立方法和过程，以及如何实现多机更新Github博客的原理和方法。
+
+总的来说，如果是第一次搭建Github博客，要学习的东西还是蛮多的，如果不明白其中的道理，加上网上零零散散不完全的教程，经常会绕到死胡同里。其中，我认为掌握Github**仓库**和**分支**的概念是很重要的，当然这也是学习Github中很重要的两个知识点。
+
+在简单学习Github之后，我又萌生了将未完成的Markdown文件存储在Github远程仓库上的想法，这样未编写完成的Markdown文章就可以在不同机器上抓取并编写，然后推送共享，随时随地编写文章，直到完成。这对于我一个经常在实验室和宿舍两头跑的学生来说，是一件挺方便的事情。
+
+之后的工作......应该是系统地学习Github，了解Github上更多有趣的东西吧，先放个链接吧，[如何使用Github](https://www.zhihu.com/question/20070065) 以及[Github上有趣的项目](https://www.zhihu.com/question/23498424)。
